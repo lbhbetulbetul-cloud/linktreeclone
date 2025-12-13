@@ -5,6 +5,9 @@ import { Database } from '@/types/database.types';
 type User = Database['public']['Tables']['users']['Row'];
 type Group = Database['public']['Tables']['groups']['Row'];
 type Link = Database['public']['Tables']['links']['Row'];
+type LinkClick = Database['public']['Tables']['link_clicks']['Row'];
+type ProfileForm = Database['public']['Tables']['profile_forms']['Row'];
+type FormSubmission = Database['public']['Tables']['form_submissions']['Row'];
 
 export const useAuthenticatedUser = () => {
   return useQuery({
@@ -163,7 +166,7 @@ export const useDeleteLink = () => {
 
       if (error) throw error;
     },
-    onSuccess: (_, linkId) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['links'] });
     },
   });
@@ -271,6 +274,171 @@ export const useReorderGroups = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['groups', variables.userId] });
+    },
+  });
+};
+
+export const useLinkClicks = ({
+  userId,
+  from,
+  to,
+  linkId,
+}: {
+  userId: string | null;
+  from?: string | null;
+  to?: string | null;
+  linkId?: string | null;
+}) => {
+  return useQuery({
+    queryKey: ['link-clicks', userId, from, to, linkId],
+    queryFn: async () => {
+      if (!userId) return [];
+
+      let query = supabase
+        .from('link_clicks')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (from) query = query.gte('created_at', from);
+      if (to) query = query.lte('created_at', to);
+      if (linkId) query = query.eq('link_id', linkId);
+
+      const { data } = await query;
+      return (data as LinkClick[]) || [];
+    },
+    enabled: !!userId,
+    refetchInterval: 10_000,
+  });
+};
+
+export const useProfileForm = (userId: string | null) => {
+  return useQuery({
+    queryKey: ['profile-form', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+
+      const { data } = await supabase
+        .from('profile_forms')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      return (data as ProfileForm) || null;
+    },
+    enabled: !!userId,
+  });
+};
+
+export const usePublicProfileForm = (userId: string | null) => {
+  return useQuery({
+    queryKey: ['public-profile-form', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+
+      const { data } = await supabase
+        .from('profile_forms')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('enabled', true)
+        .maybeSingle();
+
+      return (data as ProfileForm) || null;
+    },
+    enabled: !!userId,
+  });
+};
+
+export const useUpsertProfileForm = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (form: Partial<ProfileForm> & { user_id: string }) => {
+      const { data, error } = await supabase
+        .from('profile_forms')
+        .upsert(
+          {
+            ...form,
+            updated_at: new Date().toISOString(),
+          } as any,
+          { onConflict: 'user_id' }
+        )
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as ProfileForm;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['profile-form', data.user_id] });
+      queryClient.invalidateQueries({
+        queryKey: ['public-profile-form', data.user_id],
+      });
+    },
+  });
+};
+
+export const useFormSubmissions = ({
+  userId,
+  formId,
+  from,
+  to,
+}: {
+  userId: string | null;
+  formId: string | null;
+  from?: string | null;
+  to?: string | null;
+}) => {
+  return useQuery({
+    queryKey: ['form-submissions', userId, formId, from, to],
+    queryFn: async () => {
+      if (!userId) return [];
+
+      let query = supabase
+        .from('form_submissions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (formId) query = query.eq('form_id', formId);
+      if (from) query = query.gte('created_at', from);
+      if (to) query = query.lte('created_at', to);
+
+      const { data } = await query;
+      return (data as FormSubmission[]) || [];
+    },
+    enabled: !!userId,
+    refetchInterval: 10_000,
+  });
+};
+
+export const useUpdateSubmissionStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      status,
+      userId,
+    }: {
+      id: string;
+      status: 'baru' | 'diproses' | 'selesai';
+      userId: string;
+    }) => {
+      const { data, error } = await supabase
+        .from('form_submissions')
+        .update({ status } as any)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as FormSubmission;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['form-submissions', variables.userId],
+      });
     },
   });
 };

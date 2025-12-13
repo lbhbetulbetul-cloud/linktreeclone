@@ -92,7 +92,9 @@ export function ImportExportPanel({
 
       setImportedData(data);
     } catch (error) {
-      setImportErrors([`Gagal membaca file: ${error instanceof Error ? error.message : 'Unknown error'}`]);
+      setImportErrors([
+        `Gagal membaca file: ${error instanceof Error ? error.message : 'Kesalahan tidak diketahui'}`,
+      ]);
     } finally {
       setImporting(false);
     }
@@ -118,7 +120,7 @@ export function ImportExportPanel({
       setDuplicates({});
     } catch (error) {
       setImportErrors([
-        `Gagal mengimpor: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Gagal mengimpor: ${error instanceof Error ? error.message : 'Kesalahan tidak diketahui'}`,
       ]);
     } finally {
       setImporting(false);

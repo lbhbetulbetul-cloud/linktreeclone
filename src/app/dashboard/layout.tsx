@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
 import { DashboardProvider } from '@/components/providers/DashboardProvider';
+import { DashboardShell } from '@/components/DashboardShell';
 
 export const metadata = {
-  title: 'Dashboard - Link Manager',
-  description: 'Manage your links',
+  title: 'Dasbor - Link Manager',
+  description: 'Kelola tautan Anda',
 };
 
 export default function DashboardLayout({
@@ -11,5 +12,9 @@ export default function DashboardLayout({
 }: {
   children: ReactNode;
 }) {
-  return <DashboardProvider>{children}</DashboardProvider>;
+  return (
+    <DashboardProvider>
+      <DashboardShell>{children}</DashboardShell>
+    </DashboardProvider>
+  );
 }

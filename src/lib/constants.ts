@@ -29,7 +29,7 @@ export const COLOR_PRESETS = [
 ];
 
 export const TIMEZONES = [
-  { value: 'UTC', label: 'UTC (Coordinated Universal Time)' },
+  { value: 'UTC', label: 'UTC (Waktu Universal Terkoordinasi)' },
   { value: 'Asia/Jakarta', label: 'Asia/Jakarta (WIB)' },
   { value: 'Asia/Bangkok', label: 'Asia/Bangkok (ICT)' },
   { value: 'Asia/Singapore', label: 'Asia/Singapore (SGT)' },
@@ -37,10 +37,10 @@ export const TIMEZONES = [
   { value: 'Asia/Shanghai', label: 'Asia/Shanghai (CST)' },
   { value: 'Asia/Hong_Kong', label: 'Asia/Hong_Kong (HKT)' },
   { value: 'Australia/Sydney', label: 'Australia/Sydney (AEDT)' },
-  { value: 'Europe/London', label: 'Europe/London (GMT)' },
-  { value: 'Europe/Paris', label: 'Europe/Paris (CET)' },
-  { value: 'America/New_York', label: 'America/New_York (EST)' },
-  { value: 'America/Chicago', label: 'America/Chicago (CST)' },
-  { value: 'America/Denver', label: 'America/Denver (MST)' },
-  { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PST)' },
+  { value: 'Europe/London', label: 'Eropa/London (GMT)' },
+  { value: 'Europe/Paris', label: 'Eropa/Paris (CET)' },
+  { value: 'America/New_York', label: 'Amerika/New York (EST)' },
+  { value: 'America/Chicago', label: 'Amerika/Chicago (CST)' },
+  { value: 'America/Denver', label: 'Amerika/Denver (MST)' },
+  { value: 'America/Los_Angeles', label: 'Amerika/Los Angeles (PST)' },
 ];

@@ -5,14 +5,18 @@ import {
   usePublicUserByUsername,
   usePublicUserLinks,
   usePublicUserGroups,
+  usePublicProfileForm,
 } from '@/lib/queries';
 import { isLinkWithinSchedule, getScheduleWarning } from '@/lib/scheduling';
 import { Database } from '@/types/database.types';
-import { Share2, Copy, Check } from 'lucide-react';
-import { useState } from 'react';
+import { Copy, Check, QrCode } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { recordLinkInteraction } from '@/lib/analytics-client';
+import { Modal } from '@/components/Modal';
+import { QrCodeCard } from '@/components/QrCodeCard';
+import { PublicContactForm } from '@/components/forms/PublicContactForm';
 
 type Link = Database['public']['Tables']['links']['Row'];
-type Group = Database['public']['Tables']['groups']['Row'];
 
 interface PageProps {
   params: {
@@ -26,7 +30,21 @@ export default function PublicProfilePage({ params }: PageProps) {
   );
   const { data: links = [] } = usePublicUserLinks(user?.id || null);
   const { data: groups = [] } = usePublicUserGroups(user?.id || null);
+  const { data: profileForm } = usePublicProfileForm(user?.id || null);
+
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
+  const [copiedProfile, setCopiedProfile] = useState(false);
+
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrModalTitle, setQrModalTitle] = useState('');
+  const [qrModalValue, setQrModalValue] = useState('');
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
+  const profileUrl = useMemo(() => {
+    if (!origin || !user?.username) return '';
+    return `${origin}/u/${user.username}?utm_source=qr&utm_medium=profil`;
+  }, [origin, user?.username]);
 
   if (userLoading) {
     return (
@@ -66,14 +84,42 @@ export default function PublicProfilePage({ params }: PageProps) {
     return (groupA?.order || 0) - (groupB?.order || 0);
   });
 
-  const handleCopyLink = (url: string, linkId: string) => {
+  const trackedRedirectUrl = (linkId: string, source: string) => {
+    if (!origin) return `/r/${linkId}?src=${encodeURIComponent(source)}`;
+    return `${origin}/r/${linkId}?src=${encodeURIComponent(source)}`;
+  };
+
+  const handleCopyLink = (linkId: string) => {
+    const url = trackedRedirectUrl(linkId, 'salin');
     navigator.clipboard.writeText(url);
     setCopiedLinkId(linkId);
+
+    recordLinkInteraction({
+      linkId,
+      action: 'salin',
+      source: 'profil',
+      referrer: window.location.href,
+    });
+
     setTimeout(() => setCopiedLinkId(null), 2000);
   };
 
+  const handleCopyProfile = () => {
+    navigator.clipboard.writeText(`${origin}/u/${user.username}`);
+    setCopiedProfile(true);
+    setTimeout(() => setCopiedProfile(false), 2000);
+  };
+
   const handleSocialShare = (link: Link, platform: string) => {
-    const baseUrl = `${window.location.origin}/u/${user.username}`;
+    recordLinkInteraction({
+      linkId: link.id,
+      action: 'bagikan',
+      platform,
+      source: 'profil',
+      referrer: window.location.href,
+    });
+
+    const baseUrl = `${window.location.origin}/u/${user.username}?src=bagikan`;
     const text = `${link.title} - ${link.deskripsi || link.url}`;
     let shareUrl = '';
 
@@ -105,6 +151,20 @@ export default function PublicProfilePage({ params }: PageProps) {
         color: user.theme === 'dark' ? '#ffffff' : '#000000',
       }}
     >
+      <Modal
+        isOpen={qrModalOpen}
+        title={qrModalTitle}
+        onClose={() => setQrModalOpen(false)}
+        size="md"
+      >
+        <QrCodeCard
+          title={i18n.qrCode}
+          description={i18n.qrCodeHint}
+          value={qrModalValue}
+          filename={qrModalTitle}
+        />
+      </Modal>
+
       {/* Header */}
       <div className="border-b border-gray-200 px-4 py-8 dark:border-gray-800 sm:px-8">
         <div className="mx-auto max-w-2xl text-center">
@@ -115,13 +175,44 @@ export default function PublicProfilePage({ params }: PageProps) {
               className="mx-auto mb-4 h-24 w-24 rounded-full object-cover"
             />
           )}
-          <h1 className="text-3xl font-bold">
-            {user.display_name || user.username}
-          </h1>
+          <h1 className="text-3xl font-bold">{user.display_name || user.username}</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2">@{user.username}</p>
           {user.bio && (
             <p className="text-gray-600 dark:text-gray-300 mt-4">{user.bio}</p>
           )}
+
+          <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">
+            <button
+              onClick={handleCopyProfile}
+              className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+              title={i18n.copyProfileLink}
+            >
+              {copiedProfile ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  {i18n.copiedToClipboard}
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  {i18n.copyProfileLink}
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={() => {
+                setQrModalTitle('QR Profil');
+                setQrModalValue(profileUrl || `${origin}/u/${user.username}`);
+                setQrModalOpen(true);
+              }}
+              className="flex items-center gap-2 rounded-lg bg-blue-500 px-3 py-2 text-sm font-medium text-white hover:bg-blue-600"
+              title={i18n.qrProfile}
+            >
+              <QrCode className="h-4 w-4" />
+              {i18n.qrProfile}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -140,9 +231,7 @@ export default function PublicProfilePage({ params }: PageProps) {
               return (
                 <div key={groupId || 'ungrouped'}>
                   {group && (
-                    <h2
-                      className="mb-4 flex items-center gap-2 text-xl font-semibold"
-                    >
+                    <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold">
                       <span className="text-2xl">{group.icon}</span>
                       {group.name}
                     </h2>
@@ -169,7 +258,7 @@ export default function PublicProfilePage({ params }: PageProps) {
                           )}
 
                           <a
-                            href={link.url}
+                            href={`/r/${link.id}?src=profil`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={`block p-4 hover:no-underline ${
@@ -177,7 +266,7 @@ export default function PublicProfilePage({ params }: PageProps) {
                             }`}
                           >
                             <div
-                              className={`rounded-lg p-4 transition-all`}
+                              className="rounded-lg p-4 transition-all hover:shadow-lg"
                               style={{
                                 backgroundColor:
                                   link.gaya_tombol === 'solid'
@@ -192,23 +281,18 @@ export default function PublicProfilePage({ params }: PageProps) {
                                     ? '#ffffff'
                                     : link.warna_tombol,
                               }}
-                              className="hover:shadow-lg"
                             >
                               <div className="flex items-center gap-3">
                                 {link.icon && (
-                                  <span className="text-2xl flex-shrink-0">
-                                    {link.icon}
-                                  </span>
+                                  <span className="text-2xl flex-shrink-0">{link.icon}</span>
                                 )}
                                 <div className="flex-1 min-w-0">
                                   <h3 className="font-semibold truncate">
                                     {link.preview_title || link.title}
                                   </h3>
-                                  {(link.preview_description ||
-                                    link.deskripsi) && (
+                                  {(link.preview_description || link.deskripsi) && (
                                     <p className="text-sm opacity-90 truncate">
-                                      {link.preview_description ||
-                                        link.deskripsi}
+                                      {link.preview_description || link.deskripsi}
                                     </p>
                                   )}
                                 </div>
@@ -217,9 +301,9 @@ export default function PublicProfilePage({ params }: PageProps) {
                           </a>
 
                           {/* Link Actions */}
-                          <div className="border-t border-gray-200 flex gap-2 px-4 py-3 dark:border-gray-700">
+                          <div className="border-t border-gray-200 flex flex-wrap items-center gap-2 px-4 py-3 dark:border-gray-700">
                             <button
-                              onClick={() => handleCopyLink(link.url, link.id)}
+                              onClick={() => handleCopyLink(link.id)}
                               className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
                               title={i18n.copyLink}
                             >
@@ -236,6 +320,28 @@ export default function PublicProfilePage({ params }: PageProps) {
                               )}
                             </button>
 
+                            <button
+                              onClick={() => {
+                                setQrModalTitle(`QR: ${link.title}`);
+                                setQrModalValue(
+                                  trackedRedirectUrl(link.id, 'qr') + '&utm_medium=tautan'
+                                );
+                                setQrModalOpen(true);
+
+                                recordLinkInteraction({
+                                  linkId: link.id,
+                                  action: 'lihat_qr',
+                                  source: 'profil',
+                                  referrer: window.location.href,
+                                });
+                              }}
+                              className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+                              title={i18n.qrLink}
+                            >
+                              <QrCode className="h-4 w-4" />
+                              {i18n.qrLink}
+                            </button>
+
                             {(link.share_twitter ||
                               link.share_facebook ||
                               link.share_linkedin ||
@@ -245,44 +351,36 @@ export default function PublicProfilePage({ params }: PageProps) {
                                 <div className="flex gap-2">
                                   {link.share_twitter && (
                                     <button
-                                      onClick={() =>
-                                        handleSocialShare(link, 'twitter')
-                                      }
+                                      onClick={() => handleSocialShare(link, 'twitter')}
                                       className="text-gray-600 hover:text-blue-400 dark:text-gray-400"
-                                      title="Share on Twitter"
+                                      title="Bagikan ke X"
                                     >
                                       𝕏
                                     </button>
                                   )}
                                   {link.share_facebook && (
                                     <button
-                                      onClick={() =>
-                                        handleSocialShare(link, 'facebook')
-                                      }
+                                      onClick={() => handleSocialShare(link, 'facebook')}
                                       className="text-gray-600 hover:text-blue-600 dark:text-gray-400"
-                                      title="Share on Facebook"
+                                      title="Bagikan ke Facebook"
                                     >
                                       f
                                     </button>
                                   )}
                                   {link.share_linkedin && (
                                     <button
-                                      onClick={() =>
-                                        handleSocialShare(link, 'linkedin')
-                                      }
+                                      onClick={() => handleSocialShare(link, 'linkedin')}
                                       className="text-gray-600 hover:text-blue-700 dark:text-gray-400"
-                                      title="Share on LinkedIn"
+                                      title="Bagikan ke LinkedIn"
                                     >
                                       in
                                     </button>
                                   )}
                                   {link.share_whatsapp && (
                                     <button
-                                      onClick={() =>
-                                        handleSocialShare(link, 'whatsapp')
-                                      }
+                                      onClick={() => handleSocialShare(link, 'whatsapp')}
                                       className="text-gray-600 hover:text-green-500 dark:text-gray-400"
-                                      title="Share on WhatsApp"
+                                      title="Bagikan ke WhatsApp"
                                     >
                                       💬
                                     </button>
@@ -298,6 +396,12 @@ export default function PublicProfilePage({ params }: PageProps) {
                 </div>
               );
             })
+          )}
+
+          {profileForm?.enabled && (
+            <div className="pt-6">
+              <PublicContactForm form={profileForm} />
+            </div>
           )}
         </div>
       </div>

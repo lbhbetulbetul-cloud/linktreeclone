@@ -159,6 +159,144 @@ export type Database = {
           updated_at?: string
         }
       }
+      link_clicks: {
+        Row: {
+          id: string
+          link_id: string
+          user_id: string
+          action: string
+          platform: string | null
+          referrer: string | null
+          source: string | null
+          device_type: string | null
+          os: string | null
+          browser: string | null
+          country: string | null
+          region: string | null
+          city: string | null
+          latitude: number | null
+          longitude: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          link_id: string
+          user_id: string
+          action?: string
+          platform?: string | null
+          referrer?: string | null
+          source?: string | null
+          device_type?: string | null
+          os?: string | null
+          browser?: string | null
+          country?: string | null
+          region?: string | null
+          city?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          link_id?: string
+          user_id?: string
+          action?: string
+          platform?: string | null
+          referrer?: string | null
+          source?: string | null
+          device_type?: string | null
+          os?: string | null
+          browser?: string | null
+          country?: string | null
+          region?: string | null
+          city?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          created_at?: string
+        }
+      }
+      profile_forms: {
+        Row: {
+          id: string
+          user_id: string
+          enabled: boolean
+          title: string | null
+          description: string | null
+          fields: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          enabled?: boolean
+          title?: string | null
+          description?: string | null
+          fields?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          enabled?: boolean
+          title?: string | null
+          description?: string | null
+          fields?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      form_submissions: {
+        Row: {
+          id: string
+          form_id: string
+          user_id: string
+          data: Json
+          status: 'baru' | 'diproses' | 'selesai'
+          referrer: string | null
+          source: string | null
+          device_type: string | null
+          os: string | null
+          browser: string | null
+          country: string | null
+          region: string | null
+          city: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          form_id: string
+          user_id: string
+          data: Json
+          status?: 'baru' | 'diproses' | 'selesai'
+          referrer?: string | null
+          source?: string | null
+          device_type?: string | null
+          os?: string | null
+          browser?: string | null
+          country?: string | null
+          region?: string | null
+          city?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          form_id?: string
+          user_id?: string
+          data?: Json
+          status?: 'baru' | 'diproses' | 'selesai'
+          referrer?: string | null
+          source?: string | null
+          device_type?: string | null
+          os?: string | null
+          browser?: string | null
+          country?: string | null
+          region?: string | null
+          city?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {}
     Functions: {
@@ -181,6 +319,39 @@ export type Database = {
           id: string
           order: number
         }[]
+      }
+      record_link_click: {
+        Args: {
+          p_link_id: string
+          p_action?: string
+          p_platform?: string | null
+          p_referrer?: string | null
+          p_source?: string | null
+          p_device_type?: string | null
+          p_os?: string | null
+          p_browser?: string | null
+          p_country?: string | null
+          p_region?: string | null
+          p_city?: string | null
+          p_latitude?: number | null
+          p_longitude?: number | null
+        }
+        Returns: string
+      }
+      submit_profile_form: {
+        Args: {
+          p_form_id: string
+          p_data: Json
+          p_referrer?: string | null
+          p_source?: string | null
+          p_device_type?: string | null
+          p_os?: string | null
+          p_browser?: string | null
+          p_country?: string | null
+          p_region?: string | null
+          p_city?: string | null
+        }
+        Returns: string
       }
     }
   }

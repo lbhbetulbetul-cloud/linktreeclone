@@ -28,8 +28,8 @@ export default function LoginPage() {
       } else {
         router.push('/dashboard');
       }
-    } catch (err) {
-      setError('An error occurred');
+    } catch {
+      setError('Terjadi kesalahan');
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
+              placeholder="nama@email.com"
               className="w-full"
               required
             />

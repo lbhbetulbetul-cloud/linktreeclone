@@ -48,7 +48,7 @@ export function GroupForm({
         icon: '📱',
       });
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('Kesalahan pengiriman formulir:', error);
     }
   };
 

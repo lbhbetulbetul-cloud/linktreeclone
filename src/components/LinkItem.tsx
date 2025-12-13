@@ -1,9 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { Database } from '@/types/database.types';
 import { i18n } from '@/lib/i18n';
-import { Edit2, Trash2, GripVertical } from 'lucide-react';
+import { Edit2, Trash2, GripVertical, QrCode } from 'lucide-react';
 import { isLinkWithinSchedule, formatScheduleDisplay } from '@/lib/scheduling';
+import { Modal } from '@/components/Modal';
+import { QrCodeCard } from '@/components/QrCodeCard';
 
 type Link = Database['public']['Tables']['links']['Row'];
 type Group = Database['public']['Tables']['groups']['Row'];
@@ -26,12 +29,35 @@ export function LinkItem({
   const isActive = isLinkWithinSchedule(link);
   const scheduleInfo = formatScheduleDisplay(link);
 
+  const [qrOpen, setQrOpen] = useState(false);
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
+  const qrValue = `${origin}/r/${link.id}?src=qr&utm_medium=tautan`;
+
   return (
     <div
       className={`flex items-center gap-4 rounded-lg border border-gray-200 p-4 transition-all dark:border-gray-700 ${
         isDragging ? 'opacity-50' : 'opacity-100'
-      } ${!isActive && link.status === 'aktif' ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-950' : ''}`}
+      } ${
+        !isActive && link.status === 'aktif'
+          ? 'border-yellow-300 bg-yellow-50 dark:bg-yellow-950'
+          : ''
+      }`}
     >
+      <Modal
+        isOpen={qrOpen}
+        title={i18n.qrLink}
+        onClose={() => setQrOpen(false)}
+        size="md"
+      >
+        <QrCodeCard
+          title={link.title}
+          description={i18n.qrCodeHint}
+          value={qrValue}
+          filename={`qr-${link.title}`}
+        />
+      </Modal>
+
       <GripVertical className="h-5 w-5 flex-shrink-0 cursor-grab text-gray-400" />
 
       <div className="flex-1 min-w-0">
@@ -68,7 +94,9 @@ export function LinkItem({
         {scheduleInfo && (
           <p
             className={`text-xs mt-2 ${
-              !isActive && link.status === 'aktif' ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-500 dark:text-gray-400'
+              !isActive && link.status === 'aktif'
+                ? 'text-yellow-600 dark:text-yellow-400'
+                : 'text-gray-500 dark:text-gray-400'
             }`}
           >
             {scheduleInfo}
@@ -77,6 +105,14 @@ export function LinkItem({
       </div>
 
       <div className="flex gap-2 flex-shrink-0">
+        <button
+          onClick={() => setQrOpen(true)}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          title={i18n.qrLink}
+        >
+          <QrCode className="h-4 w-4" />
+        </button>
+
         <button
           onClick={() => onEdit(link)}
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"

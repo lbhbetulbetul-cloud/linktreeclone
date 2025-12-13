@@ -59,7 +59,7 @@ export function DraggableList<T extends { id: string }>({
 
       try {
         await onReorder(reordered);
-      } catch (error) {
+      } catch {
         setLocalItems(items);
       }
     } else {

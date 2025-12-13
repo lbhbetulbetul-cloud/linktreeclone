@@ -60,7 +60,7 @@ export function LinkForm({
       await onSubmit(data);
       reset();
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('Kesalahan pengiriman formulir:', error);
     }
   };
 

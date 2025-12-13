@@ -2,8 +2,8 @@ import { ReactNode } from 'react';
 import { PublicProvider } from '@/components/providers/PublicProvider';
 
 export const metadata = {
-  title: 'Public Profile - Link Manager',
-  description: 'View user profile',
+  title: 'Profil Publik - Link Manager',
+  description: 'Lihat profil pengguna',
 };
 
 export default function PublicLayout({

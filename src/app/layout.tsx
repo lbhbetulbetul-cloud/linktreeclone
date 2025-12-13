@@ -4,7 +4,7 @@ import '@/styles/globals.css';
 
 export const metadata: Metadata = {
   title: 'Link Manager',
-  description: 'Manage and share your links easily',
+  description: 'Kelola dan bagikan tautan Anda dengan mudah',
 };
 
 export default function RootLayout({

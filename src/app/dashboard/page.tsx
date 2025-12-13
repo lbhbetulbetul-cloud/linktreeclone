@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useState, useCallback } from 'react';
 import { i18n } from '@/lib/i18n';
 import { Modal } from '@/components/Modal';
+import { QrCodeCard } from '@/components/QrCodeCard';
 import { LinkForm } from '@/components/LinkForm';
 import { LinkItem } from '@/components/LinkItem';
 import { GroupForm } from '@/components/GroupForm';
@@ -23,7 +24,7 @@ import {
   useDeleteGroup,
 } from '@/lib/queries';
 import { LinkFormData, GroupFormData } from '@/lib/validation';
-import { Plus, Settings, Download, Upload } from 'lucide-react';
+import { Plus, Settings, Copy, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -41,6 +42,7 @@ export default function DashboardPage() {
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
   const [showGroupPanel, setShowGroupPanel] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [copiedProfile, setCopiedProfile] = useState(false);
 
   const createLinkMutation = useCreateLink();
   const updateLinkMutation = useUpdateLink();
@@ -64,6 +66,16 @@ export default function DashboardPage() {
   const filteredLinks = selectedGroup
     ? links.filter((link) => link.group_id === selectedGroup)
     : links;
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const publicProfileUrl = `${origin}/u/${user.username}`;
+  const publicProfileQrUrl = `${publicProfileUrl}?utm_source=qr&utm_medium=profil`;
+
+  const handleCopyProfile = () => {
+    navigator.clipboard.writeText(publicProfileUrl);
+    setCopiedProfile(true);
+    setTimeout(() => setCopiedProfile(false), 2000);
+  };
 
   const handleCreateLink = useCallback(
     async (data: LinkFormData) => {
@@ -229,6 +241,48 @@ export default function DashboardPage() {
               {i18n.manageGroups}
             </button>
           </div>
+        </div>
+
+        {/* QR Profil */}
+        <div className="mb-8 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
+            <h2 className="text-lg font-semibold">{i18n.publicProfile}</h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {i18n.publicProfileHint}
+            </p>
+
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+              <input
+                value={publicProfileUrl}
+                readOnly
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950"
+              />
+              <button
+                type="button"
+                onClick={handleCopyProfile}
+                className="flex items-center justify-center gap-2 rounded-lg bg-blue-500 px-3 py-2 text-sm font-medium text-white hover:bg-blue-600"
+              >
+                {copiedProfile ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    {i18n.copiedToClipboard}
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    {i18n.copyProfileLink}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <QrCodeCard
+            title={i18n.qrProfile}
+            description={i18n.qrProfileHint}
+            value={publicProfileQrUrl}
+            filename={`qr-profil-${user.username}`}
+          />
         </div>
 
         {/* Import/Export */}

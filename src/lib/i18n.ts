@@ -1,6 +1,7 @@
 export const i18n = {
   // Dashboard
   dashboard: 'Dasbor Tautan',
+  dashboardLinks: 'Tautan',
   links: 'Tautan',
   groups: 'Grup',
   addLink: 'Tambah Tautan',
@@ -9,6 +10,107 @@ export const i18n = {
   deleteLink: 'Hapus Tautan',
   deleteGroup: 'Hapus Grup',
   manageGroups: 'Kelola Grup',
+  viewPublicProfile: 'Buka profil publik',
+  logout: 'Keluar',
+
+  // Analytics
+  analytics: 'Analitik',
+  analyticsHint:
+    'Ringkasan performa tautan berdasarkan klik. Data diperbarui otomatis setiap ±10 detik.',
+  from: 'Dari',
+  to: 'Sampai',
+  filterGroup: 'Filter grup',
+  filterLink: 'Filter tautan',
+  allGroups: 'Semua grup',
+  allLinks: 'Semua tautan',
+  totalClicks: 'Total klik',
+  clickedLinks: 'Tautan terklik',
+  avgCtr: 'CTR rata-rata',
+  avgCtrHint:
+    'CTR di sini dihitung sebagai proporsi klik per tautan terhadap total klik pada rentang waktu.',
+  bestGroup: 'Grup terbaik',
+  clickTrend: 'Tren klik',
+  autoRefresh: 'Pembaruan otomatis (polling)',
+  deviceChart: 'Perangkat',
+  osChart: 'Sistem operasi',
+  browserChart: 'Browser',
+  topLinks: 'Tautan teratas',
+  link: 'Tautan',
+  clicks: 'Klik',
+  ctr: 'CTR',
+  geoAudience: 'Lokasi audiens',
+  geoHint:
+    'Lokasi perkiraan berbasis IP (ramah privasi) untuk memahami sebaran audiens.',
+  recentClicks: 'Klik terbaru',
+  recentClicksHint:
+    'Daftar klik terbaru untuk membantu validasi data dan memahami perilaku audiens.',
+  time: 'Waktu',
+  device: 'Perangkat',
+  os: 'OS',
+  browser: 'Browser',
+  location: 'Lokasi',
+
+  // Forms
+  forms: 'Formulir',
+  formsHint:
+    'Aktifkan formulir kontak di profil publik untuk menangkap email/lead, lalu kelola submisi di sini.',
+  formBuilder: 'Pembuat formulir',
+  enableForm: 'Aktifkan formulir',
+  enableFormHint: 'Jika aktif, formulir akan muncul di bawah daftar tautan.',
+  formTitle: 'Judul formulir',
+  formTitlePlaceholder: 'Contoh: Hubungi saya',
+  formDescription: 'Deskripsi',
+  formDescriptionPlaceholder: 'Contoh: Tinggalkan email, saya akan menghubungi Anda.',
+  formFields: 'Bidang',
+  addField: 'Tambah bidang',
+  fieldLabel: 'Label',
+  fieldName: 'Nama field',
+  fieldType: 'Tipe',
+  fieldRequired: 'Wajib diisi',
+  fieldNumber: 'Bidang ke',
+  noFields: 'Belum ada bidang.',
+  saveForm: 'Simpan pengaturan',
+  saveFailed: 'Gagal menyimpan. Coba lagi.',
+  saved: 'Tersimpan.',
+  submissions: 'Submisi',
+  submissionsHint: 'Kelola data yang masuk dari profil publik dan beri tag status.',
+  data: 'Data',
+  actions: 'Aksi',
+  submissionId: 'ID',
+  noFormSavedYet:
+    'Simpan pengaturan formulir terlebih dulu agar submisi dapat dicatat.',
+
+  // Public Profile
+  publicProfile: 'Profil Publik',
+  publicProfileHint:
+    'Bagikan URL profil atau gunakan QR untuk memudahkan audiens mengakses profil Anda.',
+  myProfile: 'Profil Saya',
+  userNotFound: 'Pengguna tidak ditemukan',
+  shareLink: 'Bagikan Tautan',
+  copyLink: 'Salin Tautan',
+  copyProfileLink: 'Salin tautan profil',
+  copiedToClipboard: 'Disalin ke clipboard',
+  preview: 'Pratinjau',
+  theme: 'Tema',
+  light: 'Terang',
+  dark: 'Gelap',
+  auto: 'Otomatis',
+
+  // QR
+  qrCode: 'Kode QR',
+  qrCodeHint: 'Unduh QR lalu tempelkan di media sosial, poster, atau kartu nama.',
+  qrProfile: 'QR profil',
+  qrProfileHint: 'QR menuju profil publik (dengan parameter pelacakan).',
+  qrLink: 'QR tautan',
+
+  // Contact form (public)
+  contactFormTitle: 'Formulir kontak',
+  contactFormHint: 'Isi formulir ini untuk menghubungi pemilik profil.',
+  contactFormTitleDefault: 'Hubungi saya',
+  contactFormHintDefault: 'Tinggalkan email, saya akan menghubungi Anda kembali.',
+  submit: 'Kirim',
+  formSubmitSuccess: 'Terima kasih! Data Anda berhasil dikirim.',
+  formSubmitError: 'Maaf, pengiriman gagal. Silakan coba lagi.',
 
   // Form Fields
   password: 'Kata Sandi',
@@ -23,7 +125,7 @@ export const i18n = {
   buttonStyle: 'Gaya Tombol',
   solid: 'Padat',
   outline: 'Garis Tepi',
-  ghost: 'Hantu',
+  ghost: 'Transparan',
   thumbnail: 'Thumbnail Kustom',
   previewTitle: 'Judul Pratinjau',
   previewDescription: 'Deskripsi Pratinjau',
@@ -44,7 +146,7 @@ export const i18n = {
   groupIcon: 'Ikon Grup',
   assign: 'Tetapkan',
   group: 'Grup',
-  noGroup: 'Tidak ada Grup',
+  noGroup: 'Tanpa grup',
 
   // Messages
   required: 'Diperlukan',
@@ -84,16 +186,8 @@ export const i18n = {
   outsideSchedule: 'Luar jadwal',
   insideSchedule: 'Dalam jadwal',
 
-  // Public Profile
-  publicProfile: 'Profil Publik',
-  myProfile: 'Profil Saya',
-  userNotFound: 'Pengguna tidak ditemukan',
-  shareLink: 'Bagikan Tautan',
-  copyLink: 'Salin Tautan',
-  copiedToClipboard: 'Disalin ke clipboard',
-  preview: 'Pratinjau',
-  theme: 'Tema',
-  light: 'Terang',
-  dark: 'Gelap',
-  auto: 'Otomatis',
+  // Generic
+  unknown: 'Tidak diketahui',
+  noData: 'Belum ada data.',
+  mustLogin: 'Silakan masuk terlebih dahulu.',
 };
