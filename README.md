@@ -1,236 +1,264 @@
-# Link Manager
+# Linktree Clone
 
-A modern link management dashboard with drag-and-drop reordering, grouping, scheduling, and public profiles.
+Aplikasi web modern untuk mengelola semua tautan Anda dalam satu tempat, terinspirasi dari Linktree.
 
-## Features
+## 🚀 Teknologi yang Digunakan
 
-- **Dashboard**: Manage links with CRUD operations
-- **Grouping**: Organize links into custom groups with icons and colors
-- **Scheduling**: Set start and end dates for links with timezone support
-- **Drag & Drop**: Reorder links and groups with visual feedback
-- **Import/Export**: Bulk operations with CSV and JSON support
-- **Public Profiles**: Share your links at `/u/:username`
-- **Responsive Design**: Mobile-friendly interface
-- **Bahasa UI**: Complete Indonesian language support
+- **Vite** - Build tool modern dan cepat
+- **React 18** - Library UI untuk membangun antarmuka pengguna
+- **TypeScript** - JavaScript dengan type safety
+- **Tailwind CSS** - Framework CSS utility-first
+- **shadcn/ui** - Komponen UI yang dapat diakses dan disesuaikan
+- **React Router** - Routing untuk aplikasi single-page
+- **TanStack Query** - Manajemen state server dan caching
+- **i18next** - Internasionalisasi (i18n)
+- **Sonner** - Notifikasi toast yang indah
+- **Lucide React** - Ikon modern
 
-## Tech Stack
+## ✨ Fitur
 
-- **Framework**: Next.js 14 with TypeScript
-- **Database**: Supabase (PostgreSQL)
-- **State Management**: TanStack Query (React Query)
-- **Forms**: React Hook Form + Zod
-- **UI Components**: Radix UI + Tailwind CSS
-- **Drag & Drop**: @dnd-kit
-- **Icons**: Lucide React
+- 🔐 Autentikasi (Login & Registrasi)
+- 📊 Dashboard dengan sidebar responsif
+- 🔗 Kelola tautan (Tambah, Edit, Hapus)
+- 📈 Analitik tautan (Views, Clicks, CTR)
+- 🎨 Kustomisasi tampilan profil
+- 👤 Halaman profil publik
+- 🌓 Mode terang & gelap
+- 📱 Desain responsif (Mobile & Desktop)
+- 🌐 Dukungan Bahasa Indonesia
 
-## Setup
+## 📁 Struktur Proyek
 
-### Prerequisites
+```
+src/
+├── components/
+│   ├── layouts/          # Layout utama (Dashboard, Public Profile)
+│   ├── providers/        # Provider (Theme, Query, dll)
+│   └── ui/              # Komponen UI (Button, Card, Input, dll)
+├── hooks/               # Custom hooks (useMediaQuery, dll)
+├── i18n/                # Konfigurasi internasionalisasi
+│   ├── config.ts        # Setup i18next
+│   └── locales/         # File terjemahan
+│       └── id.json      # Terjemahan Bahasa Indonesia
+├── lib/                 # Utilities dan helper functions
+│   ├── utils.ts         # Fungsi utility (cn, dll)
+│   └── mock-data.ts     # Data placeholder untuk development
+├── pages/               # Halaman aplikasi
+│   ├── auth/            # Halaman autentikasi
+│   ├── dashboard/       # Halaman dashboard
+│   └── public-profile.tsx
+└── App.tsx              # Root component dengan routing
+```
 
-- Node.js 18+
-- Supabase project
+## 🚀 Instalasi & Setup
 
-### Installation
+### Prasyarat
 
-1. Clone the repository and install dependencies:
+- Node.js 18+ dan npm
 
+### Langkah Instalasi
+
+1. Clone repository ini:
+```bash
+git clone <repository-url>
+cd <project-folder>
+```
+
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Create a `.env.local` file with your Supabase credentials:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-```
-
-3. Set up the database schema using Supabase CLI or SQL directly.
-
-### Database Schema
-
-Create the following tables in Supabase:
-
-#### Users Table
-```sql
-CREATE TABLE users (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  username VARCHAR(255) UNIQUE NOT NULL,
-  display_name VARCHAR(255),
-  avatar_url TEXT,
-  theme VARCHAR(10) DEFAULT 'auto',
-  primary_color VARCHAR(7) DEFAULT '#3b82f6',
-  secondary_color VARCHAR(7) DEFAULT '#8b5cf6',
-  bio TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-#### Groups Table
-```sql
-CREATE TABLE groups (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name VARCHAR(255) NOT NULL,
-  color VARCHAR(7) DEFAULT '#8b5cf6',
-  icon VARCHAR(10),
-  "order" INTEGER DEFAULT 0,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-#### Links Table
-```sql
-CREATE TABLE links (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  group_id UUID REFERENCES groups(id) ON DELETE SET NULL,
-  title VARCHAR(255) NOT NULL,
-  url TEXT NOT NULL,
-  deskripsi TEXT,
-  icon VARCHAR(10),
-  warna_tombol VARCHAR(7) DEFAULT '#3b82f6',
-  gaya_tombol VARCHAR(20) DEFAULT 'solid',
-  thumbnail_url TEXT,
-  preview_title VARCHAR(255),
-  preview_description TEXT,
-  preview_image TEXT,
-  share_twitter BOOLEAN DEFAULT FALSE,
-  share_facebook BOOLEAN DEFAULT FALSE,
-  share_linkedin BOOLEAN DEFAULT FALSE,
-  share_whatsapp BOOLEAN DEFAULT FALSE,
-  status VARCHAR(20) DEFAULT 'aktif',
-  start_date TIMESTAMP,
-  end_date TIMESTAMP,
-  timezone VARCHAR(50) DEFAULT 'UTC',
-  "order" INTEGER DEFAULT 0,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-#### RPC Functions
-
-```sql
-CREATE OR REPLACE FUNCTION reorder_links(
-  p_user_id UUID,
-  p_link_ids UUID[]
-)
-RETURNS TABLE (id UUID, "order" INTEGER) AS $$
-DECLARE
-  v_order INTEGER := 0;
-  v_link_id UUID;
-BEGIN
-  FOREACH v_link_id IN ARRAY p_link_ids LOOP
-    UPDATE links
-    SET "order" = v_order
-    WHERE id = v_link_id AND user_id = p_user_id;
-    
-    SELECT v_link_id, v_order INTO id, "order";
-    RETURN NEXT;
-    v_order := v_order + 1;
-  END LOOP;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION reorder_groups(
-  p_user_id UUID,
-  p_group_ids UUID[]
-)
-RETURNS TABLE (id UUID, "order" INTEGER) AS $$
-DECLARE
-  v_order INTEGER := 0;
-  v_group_id UUID;
-BEGIN
-  FOREACH v_group_id IN ARRAY p_group_ids LOOP
-    UPDATE groups
-    SET "order" = v_order
-    WHERE id = v_group_id AND user_id = p_user_id;
-    
-    SELECT v_group_id, v_order INTO id, "order";
-    RETURN NEXT;
-    v_order := v_order + 1;
-  END LOOP;
-END;
-$$ LANGUAGE plpgsql;
-```
-
-## Development
-
+3. Jalankan development server:
 ```bash
 npm run dev
 ```
 
-Visit http://localhost:3000
-
-## Building
-
-```bash
-npm run build
-npm start
+4. Buka browser dan akses:
+```
+http://localhost:5173
 ```
 
-## Project Structure
+## 🛠️ Perintah yang Tersedia
 
+- `npm run dev` - Menjalankan development server
+- `npm run build` - Build aplikasi untuk production
+- `npm run preview` - Preview build production
+- `npm run lint` - Menjalankan ESLint
+
+## 🎨 Tema & Styling
+
+Aplikasi ini menggunakan sistem desain berbasis token CSS custom properties yang dapat disesuaikan:
+
+### Color Tokens
+
+Semua warna didefinisikan dalam `src/index.css` menggunakan HSL color space:
+- `--primary` - Warna utama (hijau Linktree-style)
+- `--secondary` - Warna sekunder
+- `--accent` - Warna aksen
+- `--destructive` - Warna untuk aksi destruktif
+- `--muted` - Warna untuk elemen yang dibisukan
+- `--background` - Warna latar belakang
+- `--foreground` - Warna teks utama
+
+### Breakpoints Responsif
+
+- `xs`: 480px
+- `sm`: 640px
+- `md`: 768px
+- `lg`: 1024px
+- `xl`: 1280px
+- `2xl`: 1400px
+
+### Font
+
+- **Sans**: Inter (untuk body text)
+- **Display**: Poppins (untuk heading)
+
+## 🌐 Internasionalisasi (i18n)
+
+Aplikasi ini menggunakan i18next untuk mendukung multi-bahasa. Saat ini, Bahasa Indonesia adalah bahasa default.
+
+### Menambahkan Bahasa Baru
+
+1. Buat file JSON baru di `src/i18n/locales/`, misalnya `en.json`
+2. Salin struktur dari `id.json` dan terjemahkan semua string
+3. Import dan daftarkan di `src/i18n/config.ts`:
+
+```typescript
+import id from './locales/id.json'
+import en from './locales/en.json'
+
+i18n
+  .use(initReactI18next)
+  .init({
+    resources: {
+      id: { translation: id },
+      en: { translation: en }
+    },
+    lng: 'id',
+    fallbackLng: 'id',
+    // ...
+  })
 ```
-src/
-├── app/                    # Next.js app directory
-│   ├── dashboard/         # Dashboard page
-│   ├── login/             # Login page
-│   ├── u/                 # Public profile pages
-│   └── page.tsx          # Home redirect
-├── components/
-│   ├── LinkForm.tsx
-│   ├── LinkItem.tsx
-│   ├── GroupForm.tsx
-│   ├── Modal.tsx
-│   ├── DraggableList.tsx
-│   ├── ImportExportPanel.tsx
-│   └── providers/         # TanStack Query providers
-├── lib/
-│   ├── supabase.ts       # Supabase client
-│   ├── queries.ts        # TanStack Query hooks
-│   ├── validation.ts     # Zod schemas
-│   ├── i18n.ts          # Bahasa translations
-│   ├── import-export.ts  # CSV/JSON utilities
-│   └── scheduling.ts     # Scheduling utilities
-├── types/
-│   └── database.types.ts # Generated Supabase types
-└── styles/
-    └── globals.css       # Tailwind styles
+
+### Menggunakan Terjemahan
+
+```tsx
+import { useTranslation } from 'react-i18next'
+
+function MyComponent() {
+  const { t } = useTranslation()
+  
+  return (
+    <div>
+      <h1>{t('dashboard.welcome')}</h1>
+      <p>{t('dashboard.links.title')}</p>
+    </div>
+  )
+}
 ```
 
-## Usage
+### Struktur File Terjemahan
 
-### Dashboard
-1. Login with your Supabase account
-2. Create and manage links
-3. Organize into groups
-4. Set scheduling rules
-5. Reorder with drag & drop
-6. Import/export data
+File `id.json` terorganisir berdasarkan fitur:
+- `app.*` - Informasi aplikasi umum
+- `nav.*` - Label navigasi
+- `auth.*` - Teks autentikasi
+- `dashboard.*` - Teks dashboard dan fitur-fiturnya
+- `profile.*` - Teks profil publik
+- `common.*` - Label umum (simpan, batal, dll)
+- `validation.*` - Pesan validasi form
+- `toast.*` - Pesan notifikasi
 
-### Public Profile
-Access at `/u/:username` to view:
-- User profile information
-- Grouped links
-- Active links only (respecting scheduling)
-- Social share options
+## 🧩 Komponen UI
 
-## API Routes
+Aplikasi ini menggunakan komponen dari shadcn/ui yang sudah disesuaikan:
 
-All data is managed through Supabase:
-- Queries through RLS policies
-- Mutations through table operations
-- RPC calls for bulk operations
+- `Button` - Tombol dengan berbagai varian
+- `Card` - Container card dengan header, content, footer
+- `Input` - Input field dengan styling konsisten
+- `Dialog` - Modal dialog
+- `Tooltip` - Tooltip dengan Radix UI
+- `Avatar` - Komponen avatar dengan fallback
+- `Sonner` - Toast notifications
 
-## Contributing
+Semua komponen mendukung dark mode dan mengikuti design system yang telah ditetapkan.
 
-Please follow the existing code style and patterns.
+## 🎯 Routing
 
-## License
+Aplikasi menggunakan React Router dengan struktur route berikut:
 
-MIT
+- `/auth/login` - Halaman login
+- `/auth/register` - Halaman registrasi
+- `/dashboard` - Dashboard utama (menampilkan tautan)
+- `/dashboard/profile` - Edit profil
+- `/dashboard/appearance` - Kustomisasi tampilan
+- `/dashboard/analytics` - Analitik
+- `/dashboard/settings` - Pengaturan
+- `/:username` - Profil publik pengguna
+
+## 📱 Responsif
+
+Aplikasi sepenuhnya responsif dengan layout yang berbeda untuk:
+
+- **Mobile** (< 768px): Sidebar tersembunyi, menu hamburger
+- **Tablet** (768px - 1024px): Layout sedang
+- **Desktop** (> 1024px): Sidebar permanen, layout penuh
+
+Gunakan custom hooks untuk mendeteksi ukuran layar:
+
+```tsx
+import { useIsMobile, useIsTablet, useIsDesktop } from '@/hooks/use-media-query'
+
+function MyComponent() {
+  const isMobile = useIsMobile()
+  
+  return (
+    <div>
+      {isMobile ? <MobileView /> : <DesktopView />}
+    </div>
+  )
+}
+```
+
+## 📊 State Management
+
+- **TanStack Query** - Untuk data fetching dan caching (siap digunakan)
+- **React Context** - Untuk theme management
+- **useState/useReducer** - Untuk state lokal komponen
+
+## 🔒 Catatan Keamanan
+
+Aplikasi ini adalah prototype/demo. Untuk production:
+
+- Implementasikan autentikasi yang aman (JWT, OAuth, dll)
+- Tambahkan validasi server-side
+- Implementasikan rate limiting
+- Gunakan HTTPS
+- Tambahkan CSRF protection
+
+## 🤝 Kontribusi
+
+Kontribusi selalu diterima! Silakan:
+
+1. Fork repository
+2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buat Pull Request
+
+## 📝 Lisensi
+
+MIT License - bebas digunakan untuk proyek pribadi maupun komersial.
+
+## 🙏 Acknowledgments
+
+- [Linktree](https://linktr.ee) - Inspirasi desain
+- [shadcn/ui](https://ui.shadcn.com) - Komponen UI
+- [Tailwind CSS](https://tailwindcss.com) - Framework CSS
+- [Radix UI](https://www.radix-ui.com) - Primitif UI
+
+---
+
+Dibuat dengan ❤️ menggunakan React & TypeScript
