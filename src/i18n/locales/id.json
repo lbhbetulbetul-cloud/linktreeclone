@@ -1,0 +1,109 @@
+{
+  "app": {
+    "title": "Linktree Clone",
+    "description": "Kelola semua tautan Anda dalam satu tempat"
+  },
+  "nav": {
+    "dashboard": "Dasbor",
+    "profile": "Profil",
+    "appearance": "Tampilan",
+    "analytics": "Analitik",
+    "settings": "Pengaturan",
+    "logout": "Keluar"
+  },
+  "auth": {
+    "login": "Masuk",
+    "register": "Daftar",
+    "email": "Email",
+    "password": "Kata Sandi",
+    "confirmPassword": "Konfirmasi Kata Sandi",
+    "forgotPassword": "Lupa kata sandi?",
+    "noAccount": "Belum punya akun?",
+    "hasAccount": "Sudah punya akun?",
+    "loginButton": "Masuk",
+    "registerButton": "Daftar Sekarang",
+    "orContinueWith": "Atau lanjutkan dengan"
+  },
+  "dashboard": {
+    "welcome": "Selamat datang kembali",
+    "tabs": {
+      "links": "Tautan",
+      "appearance": "Tampilan",
+      "analytics": "Analitik"
+    },
+    "links": {
+      "title": "Kelola Tautan Anda",
+      "addNew": "Tambah Tautan Baru",
+      "noLinks": "Anda belum memiliki tautan",
+      "noLinksDescription": "Mulai dengan menambahkan tautan pertama Anda",
+      "linkTitle": "Judul Tautan",
+      "linkUrl": "URL",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "edit": "Edit",
+      "delete": "Hapus",
+      "active": "Aktif",
+      "inactive": "Tidak Aktif"
+    },
+    "appearance": {
+      "title": "Kustomisasi Tampilan",
+      "theme": "Tema",
+      "lightMode": "Mode Terang",
+      "darkMode": "Mode Gelap",
+      "profileImage": "Gambar Profil",
+      "bio": "Bio",
+      "bioPlaceholder": "Ceritakan tentang diri Anda..."
+    },
+    "analytics": {
+      "title": "Analitik Anda",
+      "totalViews": "Total Tampilan",
+      "totalClicks": "Total Klik",
+      "clickThroughRate": "Rasio Klik",
+      "topLinks": "Tautan Teratas",
+      "recentActivity": "Aktivitas Terkini",
+      "noData": "Belum ada data tersedia"
+    }
+  },
+  "profile": {
+    "editProfile": "Edit Profil",
+    "viewCount": "tampilan",
+    "shareProfile": "Bagikan Profil",
+    "copyLink": "Salin Tautan",
+    "linkCopied": "Tautan disalin!",
+    "notFound": "Profil tidak ditemukan",
+    "notFoundDescription": "Pengguna yang Anda cari tidak ada."
+  },
+  "common": {
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "close": "Tutup",
+    "confirm": "Konfirmasi",
+    "loading": "Memuat...",
+    "error": "Terjadi kesalahan",
+    "success": "Berhasil",
+    "search": "Cari...",
+    "filter": "Filter",
+    "sort": "Urutkan",
+    "clear": "Hapus",
+    "apply": "Terapkan"
+  },
+  "validation": {
+    "required": "Kolom ini wajib diisi",
+    "emailInvalid": "Email tidak valid",
+    "passwordMin": "Kata sandi minimal 8 karakter",
+    "passwordMismatch": "Kata sandi tidak cocok",
+    "urlInvalid": "URL tidak valid",
+    "maxLength": "Maksimal {{max}} karakter",
+    "minLength": "Minimal {{min}} karakter"
+  },
+  "toast": {
+    "linkAdded": "Tautan berhasil ditambahkan",
+    "linkUpdated": "Tautan berhasil diperbarui",
+    "linkDeleted": "Tautan berhasil dihapus",
+    "profileUpdated": "Profil berhasil diperbarui",
+    "settingsSaved": "Pengaturan berhasil disimpan",
+    "errorOccurred": "Terjadi kesalahan, silakan coba lagi"
+  }
+}
