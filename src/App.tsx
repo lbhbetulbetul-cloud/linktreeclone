@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/sonner'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { DashboardLayout } from '@/components/layouts/dashboard-layout'
 import { LoginPage } from '@/pages/auth/login'
 import { RegisterPage } from '@/pages/auth/register'
@@ -26,24 +28,33 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="linktree-theme">
         <TooltipProvider>
           <BrowserRouter>
-            <Routes>
-              <Route path="/auth/login" element={<LoginPage />} />
-              <Route path="/auth/register" element={<RegisterPage />} />
-              
-              <Route path="/dashboard" element={<DashboardLayout />}>
-                <Route index element={<LinksPage />} />
-                <Route path="profile" element={<LinksPage />} />
-                <Route path="appearance" element={<LinksPage />} />
-                <Route path="analytics" element={<AnalyticsPage />} />
-                <Route path="settings" element={<LinksPage />} />
-              </Route>
+            <AuthProvider>
+              <Routes>
+                <Route path="/auth/login" element={<LoginPage />} />
+                <Route path="/auth/register" element={<RegisterPage />} />
+                
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route index element={<LinksPage />} />
+                  <Route path="profile" element={<LinksPage />} />
+                  <Route path="appearance" element={<LinksPage />} />
+                  <Route path="analytics" element={<AnalyticsPage />} />
+                  <Route path="settings" element={<LinksPage />} />
+                </Route>
 
-              <Route path="/:username" element={<PublicProfilePage />} />
-              
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
+                <Route path="/:username" element={<PublicProfilePage />} />
+                
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+              <Toaster />
+            </AuthProvider>
           </BrowserRouter>
-          <Toaster />
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
